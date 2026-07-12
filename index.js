@@ -463,12 +463,29 @@
         if (GAME === 'brawlstars') {
           let maybeAnswer = document.querySelector("#maybe-answer");
           if (maybeAnswer) {
-            maybeAnswer.innerHTML = JSON.stringify({
-              game: GAME,
-              maybe: getHighestPercentageKey(jsonData[0].payload.answers ?? {}),
-              correctAnswer,
-              answers: jsonData[0].payload.answers ?? {}
-            }, null, 2);
+            const answers = jsonData[0].payload.answers ?? {};
+            const maybe = getHighestPercentageKey(answers);
+            const answerEntries = Object.entries(answers);
+            const hasCorrect = Object.keys(correctAnswer).length > 0;
+
+            let answersHtml = answerEntries.map(([key, val]) => {
+              const isCorrect = correctAnswer[key];
+              const isMaybe = key === maybe && !hasCorrect;
+              const bg = isCorrect ? 'rgba(76,175,80,0.3)' : isMaybe ? 'rgba(255,193,7,0.25)' : 'rgba(255,255,255,0.08)';
+              const border = isCorrect ? '#4caf50' : isMaybe ? '#ffc107' : 'rgba(255,255,255,0.15)';
+              const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
+              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:4px;background:${bg};border:1px solid ${border};font-size:13px;">
+                <span style="font-weight:700;">${key}</span>
+                <span>${val}%${label}</span>
+              </div>`;
+            }).join('');
+
+            const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
+            maybeAnswer.style.display = 'block';
+            maybeAnswer.innerHTML = `
+              <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#4caf50' : '#ffc107'};">${titleText}</div>
+              ${answersHtml}
+            `;
           }
         } else {
           updateCRPanel(jsonData[0], correctAnswer);
@@ -901,8 +918,20 @@
       const feedContent = document.querySelector('.feed__content');
       const lastDiv = feedContent.querySelector('div:last-child');
 
-      const newDiv = document.createElement('pre');
+      const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
+      newDiv.style.cssText = `
+        max-width: 327px;
+        width: 100%;
+        margin: 8px auto 0;
+        border-radius: 2px;
+        overflow: hidden;
+        font-family: "Supercell Headline", sans-serif;
+        background-color: rgba(25, 26, 36, 0.92);
+        padding: 16px;
+        color: #fff;
+        display: none;
+      `;
 
       feedContent.insertBefore(newDiv, lastDiv.nextSibling);
     }
