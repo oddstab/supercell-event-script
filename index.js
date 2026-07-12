@@ -963,7 +963,7 @@
       clearInterval(intervalId);
       console.log('元素已找到:', element);
       const feedContent = document.querySelector('.feed__content');
-      feedContent.style.cssText += 'overflow: visible !important; height: auto !important;';
+      feedContent.style.cssText += 'overflow: unset !important; height: auto !important;';
 
       const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
