@@ -497,6 +497,7 @@
 
             let answersHtml = '';
             if (answerEntries.length > 0) {
+              const totalVotes = Object.values(answers).reduce((s, v) => s + v, 0) || 1;
               const maybe = getHighestPercentageKey(answers);
               const hasCorrect = Object.keys(correctAnswer).length > 0;
               const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
@@ -504,6 +505,7 @@
               answersHtml = `
                 <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#2e7d32' : '#e65100'};">${titleText}</div>
               ` + answerEntries.map(([key, val]) => {
+                const pct = Math.round((val / totalVotes) * 100);
                 const isCorrect = correctAnswer[key];
                 const isMaybe = key === maybe && !hasCorrect;
                 const bg = isCorrect ? 'rgba(76,175,80,0.15)' : isMaybe ? 'rgba(255,152,0,0.15)' : 'rgba(0,0,0,0.04)';
@@ -511,7 +513,7 @@
                 const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
                 return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:2px;background:${bg};border:2px solid ${border};font-size:13px;font-weight:900;text-transform:uppercase;">
                   <span>${key}</span>
-                  <span>${val}%${label}</span>
+                  <span>${pct}%${label}</span>
                 </div>`;
               }).join('');
             }
@@ -600,26 +602,36 @@
           console.log(`[${GAME}] WS 即時投票: index=${idx}, votes=${answers[winnerKey]}`);
         }
       } else {
-        // BS 模式：用 locale 文字匹配
+        // BS 模式：用 locale 文字匹配或 data-index
         if (!alternatives[winnerKey]) return;
         const localeKey = alternatives[winnerKey].value;
         const teamText = localeData[localeKey];
 
+        let clicked = false;
         if (teamText) {
-          const clicked = findAndClickButtonWithText(document.body, teamText);
-          if (!clicked) {
-            const altKeys = Object.keys(alternatives);
-            const idx = altKeys.indexOf(winnerKey);
-            if (idx >= 0) {
+          clicked = findAndClickButtonWithText(document.body, teamText);
+        }
+        if (!clicked) {
+          const altKeys = Object.keys(alternatives);
+          const idx = altKeys.indexOf(winnerKey);
+          if (idx >= 0) {
+            // 新版 DOM: predictionButton--interactable
+            const predBtn = document.querySelector(`.predictionButton--interactable[data-index="${idx}"]`);
+            if (predBtn) {
+              predBtn.click();
+              clicked = true;
+            } else {
+              // fallback: 舊版 .card-prediction
               const predBtns = document.querySelectorAll('.card-prediction button:not([disabled])');
               const lastGroupStart = predBtns.length - altKeys.length;
               if (lastGroupStart >= 0 && predBtns[lastGroupStart + idx]) {
                 predBtns[lastGroupStart + idx].click();
+                clicked = true;
               }
             }
           }
-          console.log(`[${GAME}] WS 即時投票: ${teamText}`);
         }
+        console.log(`[${GAME}] WS 即時投票: ${teamText || winnerKey}, clicked=${clicked}`);
       }
     } catch (e) {
       // 靜默
