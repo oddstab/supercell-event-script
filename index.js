@@ -207,10 +207,13 @@
   // ===== 抓住它 / Grab (隨機獎勵) =====
   setInterval(() => {
     findAndClickButtonWithText(document.body, GRAB_TEXT);
-    // CR 的 Random Loot Drop 按鈕可能是英文 "Grab" 或其他文字
     findAndClickButtonWithText(document.body, "Grab");
     findAndClickButtonWithText(document.body, "GRAB");
-    // 也嘗試點擊 card-loot 裡面的按鈕（不管文字是什麼）
+    findAndClickButtonWithText(document.body, "Push!");
+    // 新版 lootDropCard 按鈕
+    const lootBtn = document.querySelector('.lootDropCard__buttonContainer__button:not([disabled])');
+    if (lootBtn) lootBtn.click();
+    // 舊版 card-loot
     const lootCard = document.querySelector('.card-loot button:not([disabled])');
     if (lootCard) lootCard.click();
   }, 500);
