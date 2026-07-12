@@ -424,6 +424,14 @@
       let jsonData = JSON.parse(event.data);
       console.log(jsonData);
 
+      // 收到任何訊息（含 global_state）就標記已連線
+      if (GAME === 'brawlstars') {
+        let maybeAnswer = document.querySelector("#maybe-answer");
+        if (maybeAnswer && maybeAnswer.querySelector('.ws-waiting-dot')) {
+          maybeAnswer.innerHTML = `<div style="color:#4caf50;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">✅ WS 已連線 — 等待互動訊息</div>`;
+        }
+      }
+
       if (jsonData[0].messageType != 'global_state') {
         console.log('Received WebSocket message:', JSON.stringify(jsonData, null, 2), JSON.parse(event.data)[0]);
 
