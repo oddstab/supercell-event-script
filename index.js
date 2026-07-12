@@ -969,9 +969,8 @@
       newDiv.id = 'maybe-answer';
       newDiv.style.cssText = `
         width: 100%;
-        margin: 0 0 8px;
+        margin: 8px 0 0;
         border: 2px solid #000;
-        overflow: hidden;
         font-family: "Supercell Headline", sans-serif;
         background-color: #fff;
         padding: 16px;
@@ -985,7 +984,7 @@
         <div style="color:#666;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
       `;
 
-      feedContent.prepend(newDiv);
+      feedContent.appendChild(newDiv);
     }
   }, checkInterval);
 
