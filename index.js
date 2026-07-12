@@ -500,7 +500,7 @@
 
             maybeAnswer.innerHTML = `
               ${answersHtml}
-              <pre style="margin:8px 0 0;padding:8px;background:rgba(0,0,0,0.4);border-radius:2px;font-size:10px;color:#ccc;white-space:pre-wrap;word-break:break-all;max-height:150px;overflow-y:auto;">${payloadJson}</pre>
+              <pre style="margin:8px 0 0;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:10px;color:#ccc;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;">${payloadJson}</pre>
               <div style="text-align:center;margin-top:6px;font-size:10px;color:#888;text-transform:uppercase;font-weight:700;">${msgType}</div>
             `;
           }
@@ -938,14 +938,13 @@
       const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
       newDiv.style.cssText = `
-        max-width: 327px;
         width: 100%;
-        margin: 8px auto 0;
-        border-radius: 2px;
+        margin: 8px 0 0;
+        border-radius: 8px;
         overflow: hidden;
         font-family: "Supercell Headline", sans-serif;
-        background-color: rgba(25, 26, 36, 0.92);
-        padding: 16px;
+        background-color: rgba(25, 26, 36, 0.85);
+        padding: 12px;
         color: #fff;
       `;
       newDiv.innerHTML = `
