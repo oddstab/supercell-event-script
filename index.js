@@ -964,6 +964,8 @@
         background-color: #fff;
         padding: 16px;
         color: #000;
+        position: relative;
+        z-index: 100;
       `;
       newDiv.innerHTML = `
         <style>
