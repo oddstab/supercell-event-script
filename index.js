@@ -217,8 +217,24 @@
 
   // ===== 按讚 / Cheer =====
   if (GAME === 'brawlstars') {
-    // Brawl Stars: 直接點 cheer 按鈕
+    // BS 新版: 先選表情(pin)，再定時點 cheer 按鈕
     setInterval(() => {
+      // 表情選擇面板開著（有多個 cheer-pin-button），隨機選一個
+      const pinBtns = document.querySelectorAll('.cheerPinModal .cheer-pin-button');
+      if (pinBtns.length > 0) {
+        const randomIdx = Math.floor(Math.random() * pinBtns.length);
+        pinBtns[randomIdx].click();
+        return;
+      }
+
+      // 已選好表情，直接點 cheer 按鈕
+      const cheerBtn = document.querySelector('.cheerButtonContainer__switchButton');
+      if (cheerBtn) {
+        cheerBtn.click();
+        return;
+      }
+
+      // fallback: 舊版選擇器
       document.querySelector('.cheer-btn-container__cheer-btn')?.click();
     }, 500);
   } else {
