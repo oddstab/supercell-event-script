@@ -490,7 +490,6 @@
               }).join('');
             }
 
-            maybeAnswer.style.display = 'block';
             maybeAnswer.innerHTML = `
               ${answersHtml}
               <pre style="margin:8px 0 0;padding:8px;background:rgba(0,0,0,0.4);border-radius:2px;font-size:10px;color:#ccc;white-space:pre-wrap;word-break:break-all;max-height:150px;overflow-y:auto;">${payloadJson}</pre>
@@ -940,7 +939,13 @@
         background-color: rgba(25, 26, 36, 0.92);
         padding: 16px;
         color: #fff;
-        display: none;
+      `;
+      newDiv.innerHTML = `
+        <style>
+          #maybe-answer .ws-waiting-dot { animation: ws-blink 1.4s infinite; }
+          @keyframes ws-blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+        </style>
+        <div style="color:#aaa;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
       `;
 
       feedContent.insertBefore(newDiv, lastDiv.nextSibling);
