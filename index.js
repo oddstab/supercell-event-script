@@ -221,13 +221,13 @@
     setInterval(() => {
       // 已選過表情，直接點 cheer 按鈕
       if (bsPinSelected) {
-        const cheerBtn = document.querySelector('.cheerButtonContainer__switchButton');
+        const cheerBtn = document.querySelector('.cheerButtonContainer__cheerButton');
         if (cheerBtn) cheerBtn.click();
         return;
       }
 
       // 表情選擇面板開著，隨機選一個
-      const pinBtns = document.querySelectorAll('.cheerPinModal .cheer-pin-button');
+      const pinBtns = document.querySelectorAll('.cheerPinModal__btn-container .cheer-pin-button');
       if (pinBtns.length > 0) {
         const randomIdx = Math.floor(Math.random() * pinBtns.length);
         pinBtns[randomIdx].click();
@@ -235,7 +235,7 @@
         return;
       }
 
-      // 面板還沒開，點 switch 按鈕打開
+      // 面板還沒開，點 switchButton 打開表情選擇
       const switchBtn = document.querySelector('.cheerButtonContainer__switchButton');
       if (switchBtn) switchBtn.click();
     }, 500);
