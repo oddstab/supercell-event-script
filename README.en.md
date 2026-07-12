@@ -27,4 +27,4 @@ Injected at `document-start`, the script overrides `window.WebSocket` to interce
 
 ---
 
-Other languages: [繁體中文](README.md) | [日本語](README.ja.md)
+Other languages: [繁體中文](README.md) | [简体中文](README.zh-cn.md) | [日本語](README.ja.md)

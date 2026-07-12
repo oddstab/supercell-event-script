@@ -27,4 +27,4 @@ Brawl Stars + Clash Royale 対応。
 
 ---
 
-他の言語: [繁體中文](README.md) | [English](README.en.md)
+他の言語: [繁體中文](README.md) | [English](README.en.md) | [简体中文](README.zh-cn.md)
