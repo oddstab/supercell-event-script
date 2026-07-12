@@ -951,6 +951,7 @@
       clearInterval(intervalId);
       console.log('元素已找到:', element);
       const feedContent = document.querySelector('.feed__content');
+      feedContent.style.overflow = 'visible';
 
       const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
@@ -963,9 +964,6 @@
         background-color: #fff;
         padding: 16px;
         color: #000;
-        position: sticky;
-        top: 0;
-        z-index: 100;
       `;
       newDiv.innerHTML = `
         <style>
