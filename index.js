@@ -428,7 +428,7 @@
       if (GAME === 'brawlstars') {
         let maybeAnswer = document.querySelector("#maybe-answer");
         if (maybeAnswer && maybeAnswer.querySelector('.ws-waiting-dot')) {
-          maybeAnswer.innerHTML = `<div style="color:#4caf50;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">✅ WS 已連線 — 等待互動訊息</div>`;
+          maybeAnswer.innerHTML = `<div style="color:#2e7d32;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">✅ WS 已連線 — 等待互動訊息</div>`;
         }
       }
 
@@ -484,15 +484,15 @@
               const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
 
               answersHtml = `
-                <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#4caf50' : '#ffc107'};">${titleText}</div>
+                <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#2e7d32' : '#e65100'};">${titleText}</div>
               ` + answerEntries.map(([key, val]) => {
                 const isCorrect = correctAnswer[key];
                 const isMaybe = key === maybe && !hasCorrect;
-                const bg = isCorrect ? 'rgba(76,175,80,0.3)' : isMaybe ? 'rgba(255,193,7,0.25)' : 'rgba(255,255,255,0.08)';
-                const border = isCorrect ? '#4caf50' : isMaybe ? '#ffc107' : 'rgba(255,255,255,0.15)';
+                const bg = isCorrect ? 'rgba(76,175,80,0.15)' : isMaybe ? 'rgba(255,152,0,0.15)' : 'rgba(0,0,0,0.04)';
+                const border = isCorrect ? '#4caf50' : isMaybe ? '#ff9800' : '#ddd';
                 const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
-                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:4px;background:${bg};border:1px solid ${border};font-size:13px;">
-                  <span style="font-weight:700;">${key}</span>
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:2px;background:${bg};border:2px solid ${border};font-size:13px;font-weight:900;text-transform:uppercase;">
+                  <span>${key}</span>
                   <span>${val}%${label}</span>
                 </div>`;
               }).join('');
@@ -500,8 +500,8 @@
 
             maybeAnswer.innerHTML = `
               ${answersHtml}
-              <pre style="margin:8px 0 0;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;font-size:10px;color:#ccc;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;">${payloadJson}</pre>
-              <div style="text-align:center;margin-top:6px;font-size:10px;color:#888;text-transform:uppercase;font-weight:700;">${msgType}</div>
+              <pre style="margin:8px 0 0;padding:8px;background:#f5f5f5;border:2px solid #000;font-size:10px;color:#333;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;">${payloadJson}</pre>
+              <div style="text-align:center;margin-top:6px;font-size:10px;color:#666;text-transform:uppercase;font-weight:900;">${msgType}</div>
             `;
           }
         } else {
@@ -940,19 +940,19 @@
       newDiv.style.cssText = `
         width: 100%;
         margin: 8px 0 0;
-        border-radius: 8px;
+        border: 2px solid #000;
         overflow: hidden;
         font-family: "Supercell Headline", sans-serif;
-        background-color: rgba(25, 26, 36, 0.85);
-        padding: 12px;
-        color: #fff;
+        background-color: #fff;
+        padding: 16px;
+        color: #000;
       `;
       newDiv.innerHTML = `
         <style>
           #maybe-answer .ws-waiting-dot { animation: ws-blink 1.4s infinite; }
           @keyframes ws-blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
         </style>
-        <div style="color:#aaa;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
+        <div style="color:#666;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
       `;
 
       feedContent.insertBefore(newDiv, lastDiv.nextSibling);
