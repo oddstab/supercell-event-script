@@ -463,32 +463,39 @@
         if (GAME === 'brawlstars') {
           let maybeAnswer = document.querySelector("#maybe-answer");
           if (maybeAnswer) {
-            const answers = jsonData[0].payload.answers ?? {};
+            const payload = jsonData[0].payload;
+            const msgType = jsonData[0].messageType;
+            const answers = payload.answers ?? {};
             const answerEntries = Object.entries(answers);
-            if (answerEntries.length === 0) { /* 沒有答案資料就跳過 */ }
-            else {
-            const maybe = getHighestPercentageKey(answers);
-            const hasCorrect = Object.keys(correctAnswer).length > 0;
+            const payloadJson = JSON.stringify(payload, null, 2);
 
-            let answersHtml = answerEntries.map(([key, val]) => {
-              const isCorrect = correctAnswer[key];
-              const isMaybe = key === maybe && !hasCorrect;
-              const bg = isCorrect ? 'rgba(76,175,80,0.3)' : isMaybe ? 'rgba(255,193,7,0.25)' : 'rgba(255,255,255,0.08)';
-              const border = isCorrect ? '#4caf50' : isMaybe ? '#ffc107' : 'rgba(255,255,255,0.15)';
-              const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
-              return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:4px;background:${bg};border:1px solid ${border};font-size:13px;">
-                <span style="font-weight:700;">${key}</span>
-                <span>${val}%${label}</span>
-              </div>`;
-            }).join('');
+            let answersHtml = '';
+            if (answerEntries.length > 0) {
+              const maybe = getHighestPercentageKey(answers);
+              const hasCorrect = Object.keys(correctAnswer).length > 0;
+              const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
 
-            const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
+              answersHtml = `
+                <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#4caf50' : '#ffc107'};">${titleText}</div>
+              ` + answerEntries.map(([key, val]) => {
+                const isCorrect = correctAnswer[key];
+                const isMaybe = key === maybe && !hasCorrect;
+                const bg = isCorrect ? 'rgba(76,175,80,0.3)' : isMaybe ? 'rgba(255,193,7,0.25)' : 'rgba(255,255,255,0.08)';
+                const border = isCorrect ? '#4caf50' : isMaybe ? '#ffc107' : 'rgba(255,255,255,0.15)';
+                const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:4px;background:${bg};border:1px solid ${border};font-size:13px;">
+                  <span style="font-weight:700;">${key}</span>
+                  <span>${val}%${label}</span>
+                </div>`;
+              }).join('');
+            }
+
             maybeAnswer.style.display = 'block';
             maybeAnswer.innerHTML = `
-              <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#4caf50' : '#ffc107'};">${titleText}</div>
               ${answersHtml}
+              <pre style="margin:8px 0 0;padding:8px;background:rgba(0,0,0,0.4);border-radius:2px;font-size:10px;color:#ccc;white-space:pre-wrap;word-break:break-all;max-height:150px;overflow-y:auto;">${payloadJson}</pre>
+              <div style="text-align:center;margin-top:6px;font-size:10px;color:#888;text-transform:uppercase;font-weight:700;">${msgType}</div>
             `;
-            }
           }
         } else {
           updateCRPanel(jsonData[0], correctAnswer);
