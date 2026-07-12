@@ -464,8 +464,10 @@
           let maybeAnswer = document.querySelector("#maybe-answer");
           if (maybeAnswer) {
             const answers = jsonData[0].payload.answers ?? {};
-            const maybe = getHighestPercentageKey(answers);
             const answerEntries = Object.entries(answers);
+            if (answerEntries.length === 0) { /* 沒有答案資料就跳過 */ }
+            else {
+            const maybe = getHighestPercentageKey(answers);
             const hasCorrect = Object.keys(correctAnswer).length > 0;
 
             let answersHtml = answerEntries.map(([key, val]) => {
@@ -486,6 +488,7 @@
               <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#4caf50' : '#ffc107'};">${titleText}</div>
               ${answersHtml}
             `;
+            }
           }
         } else {
           updateCRPanel(jsonData[0], correctAnswer);
