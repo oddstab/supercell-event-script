@@ -207,19 +207,40 @@
   // ===== 抓住它 / Grab (隨機獎勵) =====
   setInterval(() => {
     findAndClickButtonWithText(document.body, GRAB_TEXT);
-    // CR 的 Random Loot Drop 按鈕可能是英文 "Grab" 或其他文字
     findAndClickButtonWithText(document.body, "Grab");
     findAndClickButtonWithText(document.body, "GRAB");
-    // 也嘗試點擊 card-loot 裡面的按鈕（不管文字是什麼）
+    findAndClickButtonWithText(document.body, "Push!");
+    // 新版 lootDropCard 按鈕
+    const lootBtn = document.querySelector('.lootDropCard__buttonContainer__button:not([disabled])');
+    if (lootBtn) lootBtn.click();
+    // 舊版 card-loot
     const lootCard = document.querySelector('.card-loot button:not([disabled])');
     if (lootCard) lootCard.click();
   }, 500);
 
   // ===== 按讚 / Cheer =====
   if (GAME === 'brawlstars') {
-    // Brawl Stars: 直接點 cheer 按鈕
+    let bsPinSelected = false;
     setInterval(() => {
-      document.querySelector('.cheer-btn-container__cheer-btn')?.click();
+      // 已選過表情，直接點 cheer 按鈕
+      if (bsPinSelected) {
+        const cheerBtn = document.querySelector('.cheerButtonContainer__cheerButton');
+        if (cheerBtn) cheerBtn.click();
+        return;
+      }
+
+      // 表情選擇面板開著，隨機選一個
+      const pinBtns = document.querySelectorAll('.cheerPinModal__btn-container .cheer-pin-button');
+      if (pinBtns.length > 0) {
+        const randomIdx = Math.floor(Math.random() * pinBtns.length);
+        pinBtns[randomIdx].click();
+        bsPinSelected = true;
+        return;
+      }
+
+      // 面板還沒開，點 switchButton 打開表情選擇
+      const switchBtn = document.querySelector('.cheerButtonContainer__switchButton');
+      if (switchBtn) switchBtn.click();
     }, 500);
   } else {
     // Clash Royale: 選完表情後 cheer-pin-container 會有 activePin class
@@ -424,6 +445,14 @@
       let jsonData = JSON.parse(event.data);
       console.log(jsonData);
 
+      // 收到任何訊息（含 global_state）就標記已連線
+      if (GAME === 'brawlstars') {
+        let maybeAnswer = document.querySelector("#maybe-answer");
+        if (maybeAnswer && maybeAnswer.querySelector('.ws-waiting-dot')) {
+          maybeAnswer.innerHTML = `<div style="color:#2e7d32;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">✅ WS 已連線 — 等待互動訊息</div>`;
+        }
+      }
+
       if (jsonData[0].messageType != 'global_state') {
         console.log('Received WebSocket message:', JSON.stringify(jsonData, null, 2), JSON.parse(event.data)[0]);
 
@@ -463,12 +492,40 @@
         if (GAME === 'brawlstars') {
           let maybeAnswer = document.querySelector("#maybe-answer");
           if (maybeAnswer) {
-            maybeAnswer.innerHTML = JSON.stringify({
-              game: GAME,
-              maybe: getHighestPercentageKey(jsonData[0].payload.answers ?? {}),
-              correctAnswer,
-              answers: jsonData[0].payload.answers ?? {}
-            }, null, 2);
+            const payload = jsonData[0].payload;
+            const msgType = jsonData[0].messageType;
+            const answers = payload.answers ?? {};
+            const answerEntries = Object.entries(answers);
+            const payloadJson = JSON.stringify(payload, null, 2);
+
+            let answersHtml = '';
+            if (answerEntries.length > 0) {
+              const totalVotes = Object.values(answers).reduce((s, v) => s + v, 0) || 1;
+              const maybe = getHighestPercentageKey(answers);
+              const hasCorrect = Object.keys(correctAnswer).length > 0;
+              const titleText = hasCorrect ? '✅ 正確答案已揭曉' : '📊 即時投票';
+
+              answersHtml = `
+                <div style="text-align:center;font-size:14px;font-weight:900;text-transform:uppercase;margin-bottom:12px;color:${hasCorrect ? '#2e7d32' : '#e65100'};">${titleText}</div>
+              ` + answerEntries.map(([key, val]) => {
+                const pct = Math.round((val / totalVotes) * 100);
+                const isCorrect = correctAnswer[key];
+                const isMaybe = key === maybe && !hasCorrect;
+                const bg = isCorrect ? 'rgba(76,175,80,0.15)' : isMaybe ? 'rgba(255,152,0,0.15)' : 'rgba(0,0,0,0.04)';
+                const border = isCorrect ? '#4caf50' : isMaybe ? '#ff9800' : '#ddd';
+                const label = isCorrect ? ' ✅' : isMaybe ? ' ⬅ 最多人選' : '';
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:4px 0;border-radius:2px;background:${bg};border:2px solid ${border};font-size:13px;font-weight:900;text-transform:uppercase;">
+                  <span>${key}</span>
+                  <span>${pct}%${label}</span>
+                </div>`;
+              }).join('');
+            }
+
+            maybeAnswer.innerHTML = `
+              ${answersHtml}
+              <pre style="margin:8px 0 0;padding:8px;background:#f5f5f5;border:2px solid #000;font-size:10px;color:#333;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;">${payloadJson}</pre>
+              <div style="text-align:center;margin-top:6px;font-size:10px;color:#666;text-transform:uppercase;font-weight:900;">${msgType}</div>
+            `;
           }
         } else {
           updateCRPanel(jsonData[0], correctAnswer);
@@ -548,26 +605,36 @@
           console.log(`[${GAME}] WS 即時投票: index=${idx}, votes=${answers[winnerKey]}`);
         }
       } else {
-        // BS 模式：用 locale 文字匹配
+        // BS 模式：用 locale 文字匹配或 data-index
         if (!alternatives[winnerKey]) return;
         const localeKey = alternatives[winnerKey].value;
         const teamText = localeData[localeKey];
 
+        let clicked = false;
         if (teamText) {
-          const clicked = findAndClickButtonWithText(document.body, teamText);
-          if (!clicked) {
-            const altKeys = Object.keys(alternatives);
-            const idx = altKeys.indexOf(winnerKey);
-            if (idx >= 0) {
+          clicked = findAndClickButtonWithText(document.body, teamText);
+        }
+        if (!clicked) {
+          const altKeys = Object.keys(alternatives);
+          const idx = altKeys.indexOf(winnerKey);
+          if (idx >= 0) {
+            // 新版 DOM: predictionButton--interactable
+            const predBtn = document.querySelector(`.predictionButton--interactable[data-index="${idx}"]`);
+            if (predBtn) {
+              predBtn.click();
+              clicked = true;
+            } else {
+              // fallback: 舊版 .card-prediction
               const predBtns = document.querySelectorAll('.card-prediction button:not([disabled])');
               const lastGroupStart = predBtns.length - altKeys.length;
               if (lastGroupStart >= 0 && predBtns[lastGroupStart + idx]) {
                 predBtns[lastGroupStart + idx].click();
+                clicked = true;
               }
             }
           }
-          console.log(`[${GAME}] WS 即時投票: ${teamText}`);
         }
+        console.log(`[${GAME}] WS 即時投票: ${teamText || winnerKey}, clicked=${clicked}`);
       }
     } catch (e) {
       // 靜默
@@ -899,12 +966,29 @@
       clearInterval(intervalId);
       console.log('元素已找到:', element);
       const feedContent = document.querySelector('.feed__content');
-      const lastDiv = feedContent.querySelector('div:last-child');
+      feedContent.style.overflow = '';
+      feedContent.style.height = 'auto';
 
-      const newDiv = document.createElement('pre');
+      const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
+      newDiv.style.cssText = `
+        width: 100%;
+        margin: 8px 0 0;
+        border: 2px solid #000;
+        font-family: "Supercell Headline", sans-serif;
+        background-color: #fff;
+        padding: 16px;
+        color: #000;
+      `;
+      newDiv.innerHTML = `
+        <style>
+          #maybe-answer .ws-waiting-dot { animation: ws-blink 1.4s infinite; }
+          @keyframes ws-blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+        </style>
+        <div style="color:#666;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
+      `;
 
-      feedContent.insertBefore(newDiv, lastDiv.nextSibling);
+      feedContent.appendChild(newDiv);
     }
   }, checkInterval);
 
