@@ -951,20 +951,20 @@
       clearInterval(intervalId);
       console.log('元素已找到:', element);
       const feedContent = document.querySelector('.feed__content');
-      const lastDiv = feedContent.querySelector('div:last-child');
 
       const newDiv = document.createElement('div');
       newDiv.id = 'maybe-answer';
       newDiv.style.cssText = `
         width: 100%;
-        margin: 8px 0 0;
+        margin: 0 0 8px;
         border: 2px solid #000;
         overflow: hidden;
         font-family: "Supercell Headline", sans-serif;
         background-color: #fff;
         padding: 16px;
         color: #000;
-        position: relative;
+        position: sticky;
+        top: 0;
         z-index: 100;
       `;
       newDiv.innerHTML = `
@@ -975,7 +975,7 @@
         <div style="color:#666;font-size:12px;font-weight:900;text-transform:uppercase;text-align:center;">⏳ 等待 WebSocket 訊息<span class="ws-waiting-dot">.</span><span class="ws-waiting-dot" style="animation-delay:0.2s">.</span><span class="ws-waiting-dot" style="animation-delay:0.4s">.</span></div>
       `;
 
-      feedContent.insertBefore(newDiv, lastDiv.nextSibling);
+      feedContent.prepend(newDiv);
     }
   }, checkInterval);
 
