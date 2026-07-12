@@ -217,25 +217,27 @@
 
   // ===== 按讚 / Cheer =====
   if (GAME === 'brawlstars') {
-    // BS 新版: 先選表情(pin)，再定時點 cheer 按鈕
+    let bsPinSelected = false;
     setInterval(() => {
-      // 表情選擇面板開著（有多個 cheer-pin-button），隨機選一個
+      // 已選過表情，直接點 cheer 按鈕
+      if (bsPinSelected) {
+        const cheerBtn = document.querySelector('.cheerButtonContainer__switchButton');
+        if (cheerBtn) cheerBtn.click();
+        return;
+      }
+
+      // 表情選擇面板開著，隨機選一個
       const pinBtns = document.querySelectorAll('.cheerPinModal .cheer-pin-button');
       if (pinBtns.length > 0) {
         const randomIdx = Math.floor(Math.random() * pinBtns.length);
         pinBtns[randomIdx].click();
+        bsPinSelected = true;
         return;
       }
 
-      // 已選好表情，直接點 cheer 按鈕
-      const cheerBtn = document.querySelector('.cheerButtonContainer__switchButton');
-      if (cheerBtn) {
-        cheerBtn.click();
-        return;
-      }
-
-      // fallback: 舊版選擇器
-      document.querySelector('.cheer-btn-container__cheer-btn')?.click();
+      // 面板還沒開，點 switch 按鈕打開
+      const switchBtn = document.querySelector('.cheerButtonContainer__switchButton');
+      if (switchBtn) switchBtn.click();
     }, 500);
   } else {
     // Clash Royale: 選完表情後 cheer-pin-container 會有 activePin class
